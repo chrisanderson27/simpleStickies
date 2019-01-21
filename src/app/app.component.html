@@ -25,44 +25,54 @@ infiniteScroll
 
 </div> -->
 
-<button  (click)="addNote()">Add Note</button>
-<cdk-virtual-scroll-viewport itemSize="100" (scrollIndexChange)="getNextBatch($event)">
+<div class="container-fluid outerContainer justify-content-around">
 
-  <li [ngStyle]="{'background-color': note.color}" (click)=displayId(i) *cdkVirtualFor="let note of notes | async; let i = index"
-    class="animated slideInRight sticky">
-    <!-- {{note | json}} -->
-    <div class="container d-flex">
-      <div class="row d-block">
-        <div class="dropdown  ml-2">
-          <i class="fas fa-bars"></i>
-          <div class="dropdown-content">
-            <a class="dropdown-item colorOption" (click)="changeColor(i, 'lightcoral')" id='redSelector'></a>
-            <a class="dropdown-item colorOption" (click)="changeColor(i, 'cadetblue')" id='blueSelector'></a>
-            <a class="dropdown-item colorOption" (click)="changeColor(i, 'yellow')" id='yellowSelector'></a>
-            <a class="dropdown-item colorOption" (click)="changeColor(i, 'lightgreen')" id='greenSelector'></a>
-            <a class="dropdown-item colorOption" (click)="changeColor(i, 'pink')" id='pinkSelector'></a>
+  <!-- <div class="row"> -->
+  <cdk-virtual-scroll-viewport itemSize="100" (scrollIndexChange)="getNextBatch($event)">
+    <button (click)="addNote()" class="btn btn-success float-right mr-5 mt-3">New Note</button>
+
+
+    <li [ngStyle]="{'background-color': note.color}" (click)=displayId(i) *cdkVirtualFor="let note of notes | async; let i = index; trackBy: trackByIdx"
+      class="animated flipInX sticky">
+      <div class="container-fluid d-flex">
+        <div class="row d-block">
+          <div class="dropdown float-right mr-2 mt-2 colorIcon">
+            <i class="fas fa-bars fa-2x"></i>
+            <div class="dropdown-content">
+              <a class="dropdown-item colorOption" (click)="changeColor(i, 'lightcoral')" id='redSelector'></a>
+              <a class="dropdown-item colorOption" (click)="changeColor(i, 'cadetblue')" id='blueSelector'></a>
+              <a class="dropdown-item colorOption" (click)="changeColor(i, 'yellow')" id='yellowSelector'></a>
+              <a class="dropdown-item colorOption" (click)="changeColor(i, 'lightgreen')" id='greenSelector'></a>
+              <a class="dropdown-item colorOption" (click)="changeColor(i, 'pink')" id='pinkSelector'></a>
+            </div>
+
           </div>
+          <h4 class="titleInput">
+            <input type="text" (blur)="updateNote(i, note)" [(ngModel)]="note.title" class="editable " [ngStyle]="{'background-color': note.color}"
+              placeholder="Title">
+          </h4>
 
-        </div>
-        <div>
-          <h3>
-            <input type="text"  (blur)="updateNote(i, note)" [(ngModel)]="note.title" class="editable" [ngStyle]="{'background-color': note.color}"
-              placeholder="Title"></h3>
-        </div>
-          <div id="noteDiv" contenteditable="true" (input)="note.note=$event.target.textContent" [textContent]="note.note" (blur)="updateNote(i, note)">
+          <div class="mt-5 ml-2" id="noteDiv" contenteditable="true" (input)="note.note=$event.target.textContent"
+            [textContent]="note.note" (blur)="updateNote(i, note)">
             {{note.note}}
-          </div> 
+          </div>
           <!-- <textarea name="note" id="noteTextArea" cols="30" rows="10"></textarea>
           <input type="text" placeholder="Your note" (blur)="updateNote(i, note)" [(ngModel)]="note.note" class="editable"
             [ngStyle]="{'background-color': note.color}"> -->
-        <!-- <div>status: {{note.status}}</div> -->
-        <button class="btn mt-5" (click)=deleteNote(i)>Delete</button>
+            <br/>
+            <br/>
+            
+          <div class="float-right stickyDate">{{note.stickydate | date:'short'}}</div>
+          <i (click)=deleteNote(i) class="fas fa-trash-alt fa-2x mt-3 ml-2"></i>
+          <!-- <button class="btn mt-5" >Delete</button> -->
 
+        </div>
       </div>
-    </div>
-  </li>
+    </li>
 
-</cdk-virtual-scroll-viewport>
+  </cdk-virtual-scroll-viewport>
+  <!-- </div> -->
+</div>
 
 
 <router-outlet></router-outlet>

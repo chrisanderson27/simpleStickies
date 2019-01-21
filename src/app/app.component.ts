@@ -6,6 +6,8 @@ import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument 
 import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs';
 import { MatMenuItem, MatMenu } from '@angular/material/menu';
+import { map, tap, scan, mergeMap, throttleTime } from 'rxjs/operators';
+
 // import 'rxjs/add/operator/map';
 const batchSize = 20;
 
@@ -20,6 +22,7 @@ const batchSize = 20;
 
 export class AppComponent implements OnInit {
   notes: any;
+  batch = 20;
   @ViewChild(CdkVirtualScrollViewport)
   viewport: CdkVirtualScrollViewport;
   dummyNotes = [
@@ -40,15 +43,29 @@ export class AppComponent implements OnInit {
   notesCollection: AngularFirestoreCollection<Note>
   infinite: Observable<Note[]>;
 
-  newContent = "";
+  // offset = new BehaviorSubject(null);
+  // infinite: Observable<any[]>;
+
+  newContent = "type note here";
   constructor(private service: NotesService, private db: AngularFirestore) {
     // this.viewport.scrollToIndex(23);
+
+    // const batchMap = this.offset.pipe(
+    //   throttleTime(500),
+    //   mergeMap(n => this.getBatch(n)),
+    //   scan((acc, batch) => {
+    //     return { ...acc, ...batch };
+    //   }, {})
+    // );
+
+    // this.infinite = batchMap.pipe(map(v => Object.values(v)));
 
   }
 
   ngOnInit() {
     // this.notes = this.dummyNotes;
-    this.notesCollection = this.db.collection('notes');
+    this.notesCollection = this.db.collection('notes', ref => ref.orderBy('stickydate', 'desc'));
+    // this.notesCollection.doc().
     this.notes = this.notesCollection.valueChanges();
     this.noteDoc = this.db.doc('notes/b6TGS262JTQXTIP36pDu');
     this.snapshot = this.notesCollection.snapshotChanges().subscribe(res => {
@@ -65,40 +82,41 @@ export class AppComponent implements OnInit {
 
   }
 
-  nextBatch(e, offset) {
-    if (this.theEnd) {
-      return;
-    }
+  // nextBatch(e, offset) {
+  //   if (this.theEnd) {
+  //     return;
+  //   }
 
-    const end = this.viewport.getRenderedRange().end;
-    const total = this.viewport.getDataLength();
-
-    if (end === total) {
-      this.offset.next(offset);
-    }
-  }
+  //   const end = this.viewport.getRenderedRange().end;
+  //   const total = this.viewport.getDataLength();
+  //   console.log(`${end}, '>=', ${total}`);
+  //   if (end === total) {
+  //     this.offset.next(offset);
+  //   }
+  // }
 
   trackByIdx(i) {
     return i;
   }
 
   addNote() {
-    let noteToAdd: Note = new Note("title here", this.newContent, Date.toString(), 'incomplete', 'yellow')
+    let date = new Date();
+    let noteToAdd: Note = new Note("", this.newContent, date.toISOString(), 'incomplete', 'yellow')
     this.notesCollection.add({ ...noteToAdd });
-    this.notesCollection.get()
+    // this.notesCollection.get()
   }
 
   displayId(x) {
     console.log(x);
-    let thisNotesId = this.snapshot[x].payload.doc.id;
-    this.noteDoc = this.db.doc('notes/' + thisNotesId);
+    // let thisNotesId = this.snapshot[x].payload.doc.id;
+    // this.noteDoc = this.db.doc('notes/' + thisNotesId);
 
-    //get and save the note
-    let newNote: Note;
-    this.notesCollection.doc(thisNotesId).get().subscribe(res => {
-      newNote = res.data() as Note;
-      console.log('!!!')
-    });
+    // //get and save the note
+    // let newNote: Note;
+    // this.notesCollection.doc(thisNotesId).get().subscribe(res => {
+    //   newNote = res.data() as Note;
+    //   console.log('!!!')
+    // });
     // thisNote
     // console.log('id = ' + thisNote.payload.doc.id)
   }
@@ -129,6 +147,28 @@ export class AppComponent implements OnInit {
       this.noteDoc.set(note);
     });
   }
+
+  // getBatch(offset) {
+  //   console.log(offset);
+  //   return this.db
+  //     .collection('people', ref =>
+  //       ref
+  //         .orderBy('name')
+  //         .startAfter(offset)
+  //         .limit(this.batch)
+  //     )
+  //     .snapshotChanges()
+  //     .pipe(
+  //       tap(arr => (arr.length ? null : (this.theEnd = true))),
+  //       map(arr => {
+  //         return arr.reduce((acc, cur) => {
+  //           const id = cur.payload.doc.id;
+  //           const data = cur.payload.doc.data();
+  //           return { ...acc, [id]: data };
+  //         }, {});
+  //       })
+  //     );
+  // }
 
   // getColor(color) {
   //   switch (color) {
