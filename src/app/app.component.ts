@@ -1,17 +1,20 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { Note } from './note';
 import { NotesService } from './notes.service';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs';
+import { MatMenuItem, MatMenu } from '@angular/material/menu';
 // import 'rxjs/add/operator/map';
 const batchSize = 20;
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+
 })
 
 
@@ -51,8 +54,7 @@ export class AppComponent implements OnInit {
     this.snapshot = this.notesCollection.snapshotChanges().subscribe(res => {
       this.snapshot = res;
       console.log(this.snapshot);
-
-    })
+    });
     // console.log(':)')
     // console.log(this.noteDoc.valueChanges().subscribe(res => {
     //   console.log(res);
@@ -81,7 +83,7 @@ export class AppComponent implements OnInit {
   }
 
   addNote() {
-    let noteToAdd: Note = new Note("title here", this.newContent, Date.toString(), 'incomplete', 'color')
+    let noteToAdd: Note = new Note("title here", this.newContent, Date.toString(), 'incomplete', 'yellow')
     this.notesCollection.add({ ...noteToAdd });
     this.notesCollection.get()
   }
@@ -96,14 +98,48 @@ export class AppComponent implements OnInit {
     this.notesCollection.doc(thisNotesId).get().subscribe(res => {
       newNote = res.data() as Note;
       console.log('!!!')
-      newNote.color = newNote.color + '!';
-    this.noteDoc.set(newNote);
-    })    
-
-
+    });
     // thisNote
     // console.log('id = ' + thisNote.payload.doc.id)
   }
+
+  changeColor(index, color) {
+    // get noteRef at this id
+    let id = this.snapshot[index].payload.doc.id;
+    this.noteDoc = this.db.doc('notes/' + id);
+    // subscribe to this note, cast it as a new one, and update it
+    let newNote: Note;
+    this.notesCollection.doc(id).get().subscribe(res => {
+      newNote = res.data() as Note;
+      newNote.color = color;
+      this.noteDoc.set(newNote);
+    });
+  }
+  deleteNote(index) {
+    // get noteRef at this id
+    let id = this.snapshot[index].payload.doc.id;
+    this.notesCollection.doc(id).delete();
+  }
+
+  updateNote(index, note: Note ){
+    console.log('inside updateNote');
+    let id = this.snapshot[index].payload.doc.id;
+    this.noteDoc = this.db.doc('notes/' + id);
+    this.notesCollection.doc(id).get().subscribe(res => {
+      this.noteDoc.set(note);
+    });
+  }
+
+  // getColor(color) {
+  //   switch (color) {
+  //     case  :
+
+  //       break;
+
+  //     default:
+  //       break;
+  //   }
+  // }
 
   // getBatch(lastSeen: string) {
   //   return this.db.collection('notes', ref =>

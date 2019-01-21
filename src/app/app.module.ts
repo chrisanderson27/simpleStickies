@@ -7,6 +7,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { FormsModule } from '@angular/forms';
+import {MatMenuModule} from '@angular/material/menu';
+
 
 @NgModule({
   declarations: [
@@ -17,6 +19,7 @@ import { FormsModule } from '@angular/forms';
     AppRoutingModule,
     BrowserAnimationsModule,
     ScrollingModule,
+    MatMenuModule,
     FormsModule,
     AngularFireModule.initializeApp({
       apiKey: "AIzaSyByOL2s_W8D2DqK4n-ebIzCfnx95oLmqkk",

@@ -25,17 +25,41 @@ infiniteScroll
 
 </div> -->
 
-<input type="text" [(ngModel)]="newContent">
-<button (click)="addNote()">Add</button>
+<button  (click)="addNote()">Add Note</button>
 <cdk-virtual-scroll-viewport itemSize="100" (scrollIndexChange)="getNextBatch($event)">
 
-  <li (click)=displayId(i) *cdkVirtualFor="let note of notes | async; let i = index" class="animated slideInRight sticky">
-    {{note | json}}
-    <!-- {{note.noteId}}
-    {{note.title}}
-    {{note.note}}
-    {{note.stickydate}}
-    {{note.status}} -->
+  <li [ngStyle]="{'background-color': note.color}" (click)=displayId(i) *cdkVirtualFor="let note of notes | async; let i = index"
+    class="animated slideInRight sticky">
+    <!-- {{note | json}} -->
+    <div class="container d-flex">
+      <div class="row d-block">
+        <div class="dropdown  ml-2">
+          <i class="fas fa-bars"></i>
+          <div class="dropdown-content">
+            <a class="dropdown-item colorOption" (click)="changeColor(i, 'lightcoral')" id='redSelector'></a>
+            <a class="dropdown-item colorOption" (click)="changeColor(i, 'cadetblue')" id='blueSelector'></a>
+            <a class="dropdown-item colorOption" (click)="changeColor(i, 'yellow')" id='yellowSelector'></a>
+            <a class="dropdown-item colorOption" (click)="changeColor(i, 'lightgreen')" id='greenSelector'></a>
+            <a class="dropdown-item colorOption" (click)="changeColor(i, 'pink')" id='pinkSelector'></a>
+          </div>
+
+        </div>
+        <div>
+          <h3>
+            <input type="text"  (blur)="updateNote(i, note)" [(ngModel)]="note.title" class="editable" [ngStyle]="{'background-color': note.color}"
+              placeholder="Title"></h3>
+        </div>
+          <div id="noteDiv" contenteditable="true" (input)="note.note=$event.target.textContent" [textContent]="note.note" (blur)="updateNote(i, note)">
+            {{note.note}}
+          </div> 
+          <!-- <textarea name="note" id="noteTextArea" cols="30" rows="10"></textarea>
+          <input type="text" placeholder="Your note" (blur)="updateNote(i, note)" [(ngModel)]="note.note" class="editable"
+            [ngStyle]="{'background-color': note.color}"> -->
+        <!-- <div>status: {{note.status}}</div> -->
+        <button class="btn mt-5" (click)=deleteNote(i)>Delete</button>
+
+      </div>
+    </div>
   </li>
 
 </cdk-virtual-scroll-viewport>
